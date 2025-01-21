@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reprodutor de Vídeo com Busca</title>
+    <style>
+        #videoPlayer {
+            width: 80%;
+            margin: 20px auto;
+            display: block;
+        }
+        #videoList {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .video-item {
+            margin: 10px;
+            cursor: pointer;
+        }
+        .video-item img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Reprodutor de Vídeo</h1>
+    
+    <input type="text" id="searchInput" placeholder="Buscar vídeos" onkeyup="searchVideos()">
+    <video id="videoPlayer" controls>
+        Seu navegador não suporta vídeo.
+    </video>
+
+    <div id="videoList"></div>
+
+    <script>
+        // Link para o arquivo JSON (deve ser público)
+        const jsonUrl = 'https://raw.githubusercontent.com/seu-usuario/seu-repositorio/main/videos.json';
+
+        let videos = [];
+
+        // Função para carregar e exibir os vídeos
+        fetch(jsonUrl)
+            .then(response => response.json())
+            .then(data => {
+                videos = data.videos;
+                displayVideos(videos);
+            })
+            .catch(error => {
+                console.error('Erro ao carregar o JSON:', error);
+            });
+
+        // Função para exibir vídeos na lista
+        function displayVideos(videos) {
+            const videoListContainer = document.getElementById('videoList');
+            videoListContainer.innerHTML = '';  // Limpar lista anterior
+
+            videos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('video-item');
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="${video.title}">
+                    <p>${video.title}</p>
+                `;
+                videoItem.addEventListener('click', () => {
+                    const videoPlayer = document.getElementById('videoPlayer');
+                    videoPlayer.src = video.url;
+                    videoPlayer.play();
+                });
+
+                videoListContainer.appendChild(videoItem);
+            });
+        }
+
+        // Função de busca por título de vídeo
+        function searchVideos() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredVideos = videos.filter(video =>
+                video.title.toLowerCase().includes(searchTerm)
+            );
+            displayVideos(filteredVideos);
+        }
+    </script>
+
+</body>
+</html>
